@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conectando Conta Azul</title>
+<style>
+  body{font-family:system-ui,Segoe UI,Roboto,sans-serif;background:#0b1220;color:#e8eefc;
+    display:flex;min-height:100vh;margin:0;align-items:center;justify-content:center;text-align:center}
+  .card{background:#141d33;border:1px solid #25314f;padding:36px 40px;border-radius:16px;max-width:460px}
+  h1{font-size:20px;margin:0 0 10px}
+  p{color:#93a4c8;line-height:1.5}
+  a.btn{display:inline-block;margin-top:14px;background:#3b82f6;color:#fff;text-decoration:none;
+    padding:12px 22px;border-radius:10px;font-weight:600}
+  code{background:#0b1220;padding:2px 6px;border-radius:6px;color:#e8eefc}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1 id="titulo">Conectando sua Conta Azul...</h1>
+  <p id="msg">Devolvendo o acesso para o programa no seu computador...</p>
+  <a id="btn" class="btn" style="display:none" href="#">Concluir conexão</a>
+  <p id="codigo" style="display:none"></p>
+</div>
+<script>
+  (function () {
+    // A porta e o caminho abaixo devem bater com o config.json
+    // (porta_local = 8000, caminho_local = /callback).
+    var ALVO = "http://127.0.0.1:8000/callback";
+
+    var q = new URLSearchParams(location.search);
+    var code = q.get("code");
+    var err = q.get("error");
+    var msg = document.getElementById("msg");
+    var titulo = document.getElementById("titulo");
+    var btn = document.getElementById("btn");
+    var codigo = document.getElementById("codigo");
+
+    if (err) {
+      titulo.textContent = "Não foi possível autorizar";
+      msg.textContent = "A Conta Azul retornou: " + err + ". Tente conectar novamente pelo programa.";
+      return;
+    }
+    if (!code) {
+      titulo.textContent = "Nada para conectar";
+      msg.textContent = "Abra esta página apenas a partir do botão Conectar do programa.";
+      return;
+    }
+
+    var destino = ALVO + location.search;
+    btn.href = destino;
+
+    // Tenta devolver automaticamente para o programa.
+    setTimeout(function () { window.location.href = destino; }, 500);
+
+    // Fallback: se o navegador nao redirecionar sozinho, mostra o botao e o codigo.
+    setTimeout(function () {
+      msg.textContent = "Se não voltar sozinho, clique no botão abaixo (o programa precisa estar aberto).";
+      btn.style.display = "inline-block";
+      codigo.style.display = "block";
+      codigo.innerHTML = "Se pedirem o código manualmente, ele é:<br><code>" + code + "</code>";
+    }, 2500);
+  })();
+</script>
+</body>
+</html>
