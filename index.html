@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conectando Conta Azul</title>
+<style>
+  body{font-family:system-ui,Segoe UI,Roboto,sans-serif;background:#0b1220;color:#e8eefc;
+    display:flex;min-height:100vh;margin:0;align-items:center;justify-content:center;text-align:center;padding:16px}
+  .card{background:#141d33;border:1px solid #25314f;padding:32px 36px;border-radius:16px;max-width:520px}
+  h1{font-size:20px;margin:0 0 10px}
+  p{color:#93a4c8;line-height:1.5;margin:8px 0}
+  .btn{display:inline-block;margin:8px 6px 0;background:#3b82f6;color:#fff;border:0;cursor:pointer;
+    text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:600;font-size:15px}
+  .btn.sec{background:#25314f}
+  code{display:block;margin-top:10px;background:#0b1220;padding:12px;border-radius:8px;
+    color:#e8eefc;word-break:break-all;font-size:14px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1 id="titulo">Conectando sua Conta Azul...</h1>
+  <p id="msg">Devolvendo o acesso para o programa no seu computador...</p>
+  <div id="acoes" style="display:none">
+    <a id="btn" class="btn" href="#">Concluir conexão</a>
+    <button id="copiar" class="btn sec" type="button">Copiar código</button>
+    <p style="margin-top:14px">Se o programa pedir o código, cole este valor:</p>
+    <code id="codigo"></code>
+  </div>
+</div>
+<script>
+  (function () {
+    // Deve bater com o config.json (porta_local = 8000, caminho_local = /callback).
+    var ALVO = "http://127.0.0.1:8000/callback";
+
+    var q = new URLSearchParams(location.search);
+    var code = q.get("code");
+    var err = q.get("error");
+    var msg = document.getElementById("msg");
+    var titulo = document.getElementById("titulo");
+    var acoes = document.getElementById("acoes");
+    var btn = document.getElementById("btn");
+    var codigo = document.getElementById("codigo");
+    var copiar = document.getElementById("copiar");
+
+    if (err) {
+      titulo.textContent = "Não foi possível autorizar";
+      msg.textContent = "A Conta Azul retornou: " + err + ". Tente conectar novamente pelo programa.";
+      return;
+    }
+    if (!code) {
+      titulo.textContent = "Nada para conectar";
+      msg.textContent = "Abra esta página apenas a partir do botão Conectar do programa.";
+      return;
+    }
+
+    var destino = ALVO + location.search;
+    btn.href = destino;
+    codigo.textContent = code;
+    copiar.onclick = function () {
+      navigator.clipboard.writeText(code).then(function () {
+        copiar.textContent = "Copiado!";
+      });
+    };
+
+    // Mostra as opções manuais já de cara (caso o retorno automático não funcione).
+    acoes.style.display = "block";
+    msg.textContent = "Voltando para o programa automaticamente. Se não voltar, use os botões abaixo (o programa precisa estar aberto).";
+
+    // Tenta devolver automaticamente para o programa.
+    setTimeout(function () { window.location.href = destino; }, 600);
+  })();
+</script>
+</body>
+</html>
